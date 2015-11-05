@@ -8,6 +8,10 @@
 #  Desired installation state for the Python package. Valid options are absent,
 #  present and latest. Default: present
 #
+# [*local_rhscl_repo*]
+# Define whether we are using a local SCL repo or the default internet one.
+# Default: false
+#
 # [*version*]
 #  Python version to install. Beware that valid values for this differ a) by
 #  the provider you choose and b) by the osfamily/operatingsystem you are using.
@@ -30,6 +34,21 @@
 #  Default: absent
 #  Allowed values: 'absent', 'present', 'latest'
 #
+# [*scldev*]
+#  Desired installation state for python-scldev. Boolean values are deprecated.
+#  Default: absent
+#  Allowed values: 'absent', 'present', 'latest'
+#
+# [*scl_utils*]
+#  Desired installation state for scl_utils (scl or rhscl provider).
+#  Valid options are absent, present and latest.
+#  Default: latest
+#
+# [*setuptools*]
+#  Desired installation state for setuptools. Often installed by default.
+#  Default: present
+#  Allowed values: 'absent', 'present', 'latest'
+#
 # [*virtualenv*]
 #  Desired installation state for python-virtualenv. Boolean values are
 #  deprecated. Default: absent
@@ -46,7 +65,7 @@
 # [*provider*]
 #  What provider to use for installation of the packages, except gunicorn and
 #  Python itself. Default: system default provider
-#  Allowed values: 'pip'
+#  Allowed values: 'pip','scl','rhscl'
 #
 # [*use_epel*]
 #  Boolean to determine if the epel class is used. Default: true
@@ -68,9 +87,13 @@
 #
 class python (
   $ensure                    = $python::params::ensure,
+  $scl_utils                 = $python::params::scl_utils,
+  $local_scl_repo            = $python::params::local_scl_repo,
   $version                   = $python::params::version,
   $pip                       = $python::params::pip,
   $dev                       = $python::params::dev,
+  $scldev                    = $python::params::scldev,
+  $setuptools                = $python::params::setuptools,
   $virtualenv                = $python::params::virtualenv,
   $gunicorn                  = $python::params::gunicorn,
   $manage_gunicorn           = $python::params::manage_gunicorn,
@@ -104,10 +127,28 @@ class python (
     validate_re($pip, ['^(absent|present|latest)$'])
   }
 
-  if $virtualenv == false or $virtualenv == true {
-    warning('Use of boolean values for the $virtualenv parameter is deprecated')
+  if $dev == false or $dev == true {
+    warning('Use of boolean values for the $dev parameter is deprecated')
   } else {
-    validate_re($virtualenv, ['^(absent|present|latest)$'])
+    validate_re($dev, ['^(absent|present|latest)$'])
+  }
+
+  if $scldev == false or $scldev == true {
+    warning('Use of boolean values for the $scldev parameter is deprecated')
+  } else {
+    validate_re($scldev, ['^(absent|present|latest)$'])
+  }
+
+  if $scl_utils == false or $scl_utils == true {
+    warning('Use of boolean values for the $scl_utils parameter is deprecated')
+  } else {
+    validate_re($scl_utils, ['^(absent|present|latest)$'])
+  }
+
+  if $setuptools == false or $setuptools == true {
+    warning('Use of boolean values for the $setuptools parameter is deprecated')
+  } else {
+    validate_re($setuptools, ['^(absent|present|latest)$'])
   }
 
   if $virtualenv == false or $virtualenv == true {

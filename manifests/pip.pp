@@ -51,6 +51,9 @@
 # [*log_dir*]
 # String. Log directory.
 #
+# [*path*]
+#  Specifies the PATH variable. Default: [ '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin' ]
+#
 # === Examples
 #
 # python::pip { 'flask':

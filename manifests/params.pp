@@ -7,6 +7,10 @@ class python::params {
   $version                = 'system'
   $pip                    = 'present'
   $dev                    = 'absent'
+  $scldev                 = 'absent'
+  $scl_utils              = 'latest'
+  $setuptools             = 'present'
+  $local_scl_repo         = false
   $virtualenv             = 'absent'
   $gunicorn               = 'absent'
   $manage_gunicorn        = true

@@ -15,16 +15,22 @@
 #
 class python::install {
 
+  $local_scl_repo = $python::local_scl_repo
+
   $python = $::python::version ? {
     'system' => 'python',
     'pypy'   => 'pypy',
     default  => "${python::version}",
   }
 
-  $pythondev = $::osfamily ? {
-    'RedHat' => "${python}-devel",
-    'Debian' => "${python}-dev",
-    'Suse'   => "${python}-devel",
+  if $python::provider == 'rhscl' and $local_scl_repo {
+    $pythondev = "${python}-python-devel"
+  } else {
+    $pythondev = $::osfamily ? {
+      'RedHat' => "${python}-devel",
+      'Debian' => "${python}-dev",
+      'Suse'   => "${python}-devel",
+    }
   }
 
   $dev_ensure = $python::dev ? {
@@ -33,10 +39,34 @@ class python::install {
     default => $python::dev,
   }
 
+  $scldev_ensure = $python::scldev ? {
+    true    => 'present',
+    false   => 'absent',
+    default => $python::scldev,
+  }
+
+  if $python::provider == 'rhscl' and $local_scl_repo {
+    $pip = "${python}-python-pip"
+  } else {
+    $pip = 'pip'
+  }
+
   $pip_ensure = $python::pip ? {
     true    => 'present',
     false   => 'absent',
     default => $python::pip,
+  }
+
+  $scl_utils_ensure = $python::scl_utils ? {
+    true    => 'present',
+    false   => 'absent',
+    default => $python::scl_utils,
+  }
+
+  $setuptools_ensure = $python::setuptools ? {
+    true    => 'present',
+    false   => 'absent',
+    default => $python::setuptools,
   }
 
   $venv_ensure = $python::virtualenv ? {
@@ -60,6 +90,7 @@ class python::install {
 
       package { 'pip':
         ensure  => $pip_ensure,
+        name    => $pip,
         require => Package['python'],
       }
 
@@ -108,7 +139,7 @@ class python::install {
         before => Package['scl-utils'],
       }
       package { 'scl-utils':
-        ensure => 'latest',
+        ensure => $scl_utils_ensure,
         before => Package['python'],
       }
 
@@ -121,22 +152,45 @@ class python::install {
         ensure  => $dev_ensure,
         require => Package['scl-utils'],
       }
-      if $pip_ensure != 'absent' {
+      if $pip_ensure != 'absent' and $setuptools_ensure != 'latest' {
         exec { 'python-scl-pip-install':
           command => "${python::exec_prefix}easy_install pip",
           path    => ['/usr/bin', '/bin'],
           creates => "/opt/rh/${python::version}/root/usr/bin/pip",
           require => Package['scl-utils'],
         }
+      } elsif $pip_ensure != 'absent' and $setuptools_ensure == 'latest' {
+        exec { 'python-scl-pip-install-setuptools-upgrade':
+          command     => "${python::params::exec_prefix}easy_install pip; ${python::params::exec_prefix}easy_install -U setuptools",
+          environment => ["LD_LIBRARY_PATH=/opt/rh/${python::version}/root/usr/lib64", "XDG_DATA_DIRS=/opt/rh/${python::version}/root/usr/share", "PKG_CONFIG_PATH=/opt/rh/${python::version}/root/usr/lib64/pkgconfig"],
+          path        => ["/opt/rh/${python::version}/root/usr/bin", '/usr/bin', '/bin'],
+          creates     => "/opt/rh/${python::version}/root/usr/bin/pip",
+          require     => Package['scl-utils'],
+        }
       }
     }
+
     rhscl: {
-      # rhscl is RedHat SCLs from softwarecollections.org
-      $scl_package = "rhscl-${::python::version}-epel-${::operatingsystemmajrelease}-${::architecture}"
-      package { $scl_package:
-        source   => "https://www.softwarecollections.org/en/scls/rhscl/${::python::version}/epel-${::operatingsystemmajrelease}-${::architecture}/download/${scl_package}.noarch.rpm",
-        provider => 'rpm',
-        tag      => 'python-scl-repo',
+      if $local_scl_repo {
+        package { 'scl-utils':
+          ensure => $scl_utils_ensure,
+          before => Package['python'],
+          tag    => 'python-scl-repo',
+        }
+        
+        package { 'pip':
+          ensure  => $pip_ensure,
+          name    => $pip,
+          require => Package['python'],
+        }
+      } else {
+        # rhscl is RedHat SCLs from softwarecollections.org
+        $scl_package = "rhscl-${::python::version}-epel-${::operatingsystemmajrelease}-${::architecture}"
+        package { $scl_package:
+          source   => "https://www.softwarecollections.org/en/scls/rhscl/${::python::version}/epel-${::operatingsystemmajrelease}-${::architecture}/download/${scl_package}.noarch.rpm",
+          provider => 'rpm',
+          tag      => 'python-scl-repo',
+        }
       }
 
       Package <| title == 'python' |> {
@@ -144,11 +198,16 @@ class python::install {
       }
 
       package { "${python}-scldevel":
-        ensure => $dev_ensure,
+        ensure => $scldev_ensure,
         tag    => 'python-scl-package',
       }
 
-      if $pip_ensure != 'absent' {
+      package { 'python-dev':
+        ensure => $dev_ensure,
+        name   => $pythondev,
+      }
+
+      if $pip_ensure != 'absent' and !$local_scl_repo {
         exec { 'python-scl-pip-install':
           command => "${python::exec_prefix}easy_install pip",
           path    => ['/usr/bin', '/bin'],
@@ -156,9 +215,26 @@ class python::install {
         }
       }
 
-      Package <| tag == 'python-scl-repo' |> ->
-      Package <| tag == 'python-scl-package' |> ->
-      Exec['python-scl-pip-install']
+      if $setuptools_ensure == 'latest' {
+        exec { 'python-scl-setuptools-upgrade':
+          command     => 'easy_install -U setuptools',
+          environment => ["LD_LIBRARY_PATH=/opt/rh/${python}/root/usr/lib64", "XDG_DATA_DIRS=/opt/rh/${python}/root/usr/share", "PKG_CONFIG_PATH=/opt/rh/${python}/root/usr/lib64/pkgconfig"],
+          path        => ["/opt/rh/${python}/root/usr/bin", '/usr/bin', '/bin'],
+          require     => Package['scl-utils'],
+          subscribe   => Package['python'],
+          refreshonly => true,
+          tag         => 'python-setuptools-update',
+        }
+      }
+
+      if $pip_ensure != 'absent' and !$local_scl_repo {
+        Package <| tag == 'python-scl-repo' |> ->
+        Package <| tag == 'python-scl-package' |> ->
+        Exec['python-scl-pip-install']
+      } else {
+          Package <| tag == 'python-scl-repo' |> ->
+          Package <| tag == 'python-scl-package' |>
+      }
     }
 
     default: {
