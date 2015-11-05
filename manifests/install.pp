@@ -55,9 +55,11 @@ class python::install {
     name   => $pythondev,
   }
 
-  package { 'pip':
-    ensure  => $pip_ensure,
-    require => Package['python'],
+  if ($python::provider != 'scl') or ($python::provider != 'rhscl') {
+    package { 'pip':
+      ensure  => $pip_ensure,
+      require => Package['python'],
+    }
   }
 
   package { 'virtualenv':
