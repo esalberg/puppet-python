@@ -107,7 +107,7 @@ class python::install {
         before => Package['scl-utils'],
       }
       package { 'scl-utils':
-        ensure => 'latest',
+        ensure => 'present',
         before => Package['python'],
       }
 
