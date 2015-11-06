@@ -55,7 +55,7 @@ class python::install {
     name   => $pythondev,
   }
 
-  if ($::python::provider != 'scl') or ($::python::provider != 'rhscl') {
+  if ($python::provider != 'scl') or ($python::provider != 'rhscl') {
     package { 'pip':
       ensure  => $pip_ensure,
       require => Package['python'],
