@@ -75,7 +75,6 @@ define python::pip (
   $proxy           = false,
   $egg             = false,
   $editable        = false,
-  $pipenv          = 'system',
   $environment     = [],
   $install_args    = '',
   $uninstall_args  = '',
