@@ -75,6 +75,7 @@ define python::pip (
   $proxy           = false,
   $egg             = false,
   $editable        = false,
+  $pipenv          = 'system',
   $environment     = [],
   $install_args    = '',
   $uninstall_args  = '',
@@ -103,9 +104,18 @@ define python::pip (
     default  => $virtualenv,
   }
 
-  $pip_env = $virtualenv ? {
+  if $virtualenv != 'system' {
+    $pipenv = $virtualenv
+  } else {
+    $pipenv = $::python::provider
+  }
+
+  $pip_env = $pipenv ? {
     'system' => 'pip',
-    default  => "${virtualenv}/bin/pip",
+    'pip'    => 'pip',
+    'rhscl'  => "/opt/rh/${python::version}/root/usr/bin/pip",
+    'scl'    => "/opt/rh/${python::version}/root/usr/bin/pip",
+    default  => "${pipenv}/bin/pip",
   }
 
   $pypi_index = $index ? {
