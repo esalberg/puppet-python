@@ -112,8 +112,8 @@ define python::pip (
   $pip_env = $pipenv ? {
     'system' => 'pip',
     'pip'    => 'pip',
-    'rhscl'  => "/opt/rh/${python::version}/root/usr/bin/pip",
-    'scl'    => "/opt/rh/${python::version}/root/usr/bin/pip",
+    'rhscl'  => "/opt/rh/python${python::version}/root/usr/bin/pip",
+    'scl'    => "/opt/rh/python${python::version}/root/usr/bin/pip",
     default  => "${pipenv}/bin/pip",
   }
 
