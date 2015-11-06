@@ -12,7 +12,7 @@ class python::params {
   $manage_gunicorn        = true
   $provider               = undef
   $valid_versions = $::osfamily ? {
-    'RedHat' => ['3', '2.7'],
+    'RedHat' => ['3', '27'],
     'Debian' => ['3', '3.3', '2.7'],
     'Suse'   => [],
   }
