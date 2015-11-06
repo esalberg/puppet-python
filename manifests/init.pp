@@ -8,6 +8,12 @@
 #  Desired installation state for the Python package. Valid options are absent,
 #  present and latest. Default: present
 #
+# [*ensure_scl_utils*]
+#  Desired installation state for the scl_utils package. Only installed with
+#  the 'scl' provider.  
+#  Valid options are absent, present and latest.
+#  Default: latest
+#
 # [*version*]
 #  Python version to install. Beware that valid values for this differ a) by
 #  the provider you choose and b) by the osfamily/operatingsystem you are using.
@@ -46,7 +52,7 @@
 # [*provider*]
 #  What provider to use for installation of the packages, except gunicorn and
 #  Python itself. Default: system default provider
-#  Allowed values: 'pip'
+#  Allowed values: 'pip','scl','rhscl'
 #
 # [*use_epel*]
 #  Boolean to determine if the epel class is used. Default: true
@@ -68,6 +74,7 @@
 #
 class python (
   $ensure                    = $python::params::ensure,
+  $ensure_scl_utils          = $python::params::ensure_scl_utils,
   $version                   = $python::params::version,
   $pip                       = $python::params::pip,
   $dev                       = $python::params::dev,
@@ -95,6 +102,7 @@ class python (
   }
 
   validate_re($ensure, ['^(absent|present|latest)$'])
+  validate_re($ensure_scl_utils, ['^(absent|present|latest)$'])
   validate_re($version, concat(['system', 'pypy'], $valid_versions))
 
   if $pip == false or $pip == true {
