@@ -126,7 +126,7 @@ class python::install {
         exec { 'python-scl-pip-install':
           command => "${python::params::exec_prefix}easy_install pip",
           path    => ['/usr/bin', '/bin'],
-          creates => "/opt/rh/${python::version}/root/usr/bin/pip",
+          creates => "/opt/rh/python${python::version}/root/usr/bin/pip",
           require => Package['scl-utils'],
         }
       }
