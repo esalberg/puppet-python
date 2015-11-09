@@ -116,8 +116,10 @@ define python::pip (
   $pip_env = $pipenv ? {
     'system' => 'pip',
     'pip'    => 'pip',
-    'rhscl'  => "scl enable python${python::version} pip",
-    'scl'    => "scl enable python${python::version} pip",
+#    'rhscl'  => "scl enable python${python::version} pip",
+    'rhscl'  => 'pip',
+#    'scl'    => "scl enable python${python::version} pip",
+    'scl'    => 'pip',
     default  => "${pipenv}/bin/pip",
   }
 
