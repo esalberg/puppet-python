@@ -109,7 +109,7 @@ class python::install {
         before => Package['scl-utils'],
       }
       package { 'scl-utils':
-        ensure => 'present',
+        ensure => $python::ensure_scl_utils,
         before => Package['python'],
       }
 

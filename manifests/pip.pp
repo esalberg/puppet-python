@@ -37,6 +37,9 @@
 # [*environment*]
 #  Additional environment variables required to install the packages. Default: none
 #
+# [*path*]
+#  Specifies the PATH variable. Default: [ '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin' ]
+#
 # [*timeout*]
 #  The maximum time in seconds the "pip install" command should take. Default: 1800
 #
@@ -76,6 +79,7 @@ define python::pip (
   $egg             = false,
   $editable        = false,
   $environment     = [],
+  $path             = [ '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin' ],
   $install_args    = '',
   $uninstall_args  = '',
   $timeout         = 1800,
@@ -189,7 +193,7 @@ define python::pip (
         group       => $group,
         cwd         => $cwd,
         environment => $environment,
-        path        => ['/usr/local/bin','/usr/bin','/bin', '/usr/sbin'],
+        path        => $path,
         timeout     => $timeout,
       }
     } else {
@@ -200,7 +204,7 @@ define python::pip (
         group       => $group,
         cwd         => $cwd,
         environment => $environment,
-        path        => ['/usr/local/bin','/usr/bin','/bin', '/usr/sbin'],
+        path        => $path,
         timeout     => $timeout,
       }
     }
@@ -216,7 +220,7 @@ define python::pip (
           group       => $group,
           cwd         => $cwd,
           environment => $environment,
-          path        => ['/usr/local/bin','/usr/bin','/bin', '/usr/sbin'],
+          path        => $path,
           timeout     => $timeout,
         }
       }
@@ -230,7 +234,7 @@ define python::pip (
           group       => $group,
           cwd         => $cwd,
           environment => $environment,
-          path        => ['/usr/local/bin','/usr/bin','/bin', '/usr/sbin'],
+          path        => $path,
           timeout     => $timeout,
         }
       }
@@ -244,7 +248,7 @@ define python::pip (
           group       => $group,
           cwd         => $cwd,
           environment => $environment,
-          path        => ['/usr/local/bin','/usr/bin','/bin', '/usr/sbin'],
+          path        => $path,
           timeout     => $timeout,
         }
       }
@@ -258,7 +262,7 @@ define python::pip (
           group       => $group,
           cwd         => $cwd,
           environment => $environment,
-          path        => ['/usr/local/bin','/usr/bin','/bin', '/usr/sbin'],
+          path        => $path,
           timeout     => $timeout,
         }
       }

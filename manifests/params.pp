@@ -4,6 +4,7 @@
 #
 class python::params {
   $ensure                 = 'present'
+  $ensure_scl_utils       = 'latest' # Only installed with scl
   $version                = 'system'
   $pip                    = 'present'
   $dev                    = 'absent'
