@@ -36,6 +36,11 @@
 #  Default: absent
 #  Allowed values: 'absent', 'present', 'latest'
 #
+# [*setuptools*]
+#  Desired installation state for setuptools. Often installed by default.
+#  Default: present
+#  Allowed values: 'absent', 'present', 'latest'
+#
 # [*virtualenv*]
 #  Desired installation state for python-virtualenv. Boolean values are
 #  deprecated. Default: absent
@@ -78,6 +83,7 @@ class python (
   $version                   = $python::params::version,
   $pip                       = $python::params::pip,
   $dev                       = $python::params::dev,
+  $setuptools                = $python::params::setuptools,
   $virtualenv                = $python::params::virtualenv,
   $gunicorn                  = $python::params::gunicorn,
   $manage_gunicorn           = $python::params::manage_gunicorn,
@@ -111,10 +117,16 @@ class python (
     validate_re($pip, ['^(absent|present|latest)$'])
   }
 
-  if $virtualenv == false or $virtualenv == true {
-    warning('Use of boolean values for the $virtualenv parameter is deprecated')
+  if $dev == false or $dev == true {
+    warning('Use of boolean values for the $dev parameter is deprecated')
   } else {
-    validate_re($virtualenv, ['^(absent|present|latest)$'])
+    validate_re($dev, ['^(absent|present|latest)$'])
+  }
+
+  if $setuptools == false or $setuptools == true {
+    warning('Use of boolean values for the $setuptools parameter is deprecated')
+  } else {
+    validate_re($setuptools, ['^(absent|present|latest)$'])
   }
 
   if $virtualenv == false or $virtualenv == true {

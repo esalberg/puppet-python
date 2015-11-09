@@ -8,6 +8,7 @@ class python::params {
   $version                = 'system'
   $pip                    = 'present'
   $dev                    = 'absent'
+  $setuptools             = 'present'
   $virtualenv             = 'absent'
   $gunicorn               = 'absent'
   $manage_gunicorn        = true
