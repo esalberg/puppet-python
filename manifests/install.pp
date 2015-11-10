@@ -180,16 +180,18 @@ class python::install {
         package { "python${python::version}-python-pip":
           ensure => $pip_ensure,
         }
+      } else {
+        Package <| tag == 'python-scl-repo' |> ->
+        Package <| tag == 'python-scl-package' |> ->
+        Exec['python-scl-pip-install']
+      }
+      if $setuptools_ensure == 'latest' {
         exec { 'python-scl-settuptools-install':
           command     => "${python::params::exec_prefix}easy_install -U setuptools",
           environment => ["LD_LIBRARY_PATH=/opt/rh/python${python::version}/root/usr/lib64", "XDG_DATA_DIRS=/opt/rh/python${python::version}/root/usr/share", "PKG_CONFIG_PATH=/opt/rh/python${python::version}/root/usr/lib64/pkgconfig"],
           path        => ["/opt/rh/python${python::version}/root/usr/bin", '/usr/bin', '/bin'],
           require     => Package['scl-utils'],
         }
-      } else {
-        Package <| tag == 'python-scl-repo' |> ->
-        Package <| tag == 'python-scl-package' |> ->
-        Exec['python-scl-pip-install']
       }
     }
 
