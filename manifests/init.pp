@@ -14,6 +14,10 @@
 #  Valid options are absent, present and latest.
 #  Default: latest
 #
+# [*local_rhscl_repo*]
+# Define whether we are using a local SCL repo or the default internet one.
+# Default: false
+#
 # [*version*]
 #  Python version to install. Beware that valid values for this differ a) by
 #  the provider you choose and b) by the osfamily/operatingsystem you are using.
@@ -80,6 +84,7 @@
 class python (
   $ensure                    = $python::params::ensure,
   $ensure_scl_utils          = $python::params::ensure_scl_utils,
+  $local_scl_repo            = $python::params::local_scl_repo,
   $version                   = $python::params::version,
   $pip                       = $python::params::pip,
   $dev                       = $python::params::dev,

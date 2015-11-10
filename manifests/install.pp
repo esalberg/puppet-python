@@ -146,21 +146,28 @@ class python::install {
       }
     }
     rhscl: {
-      # rhscl is RedHat SCLs from softwarecollections.org
-      $scl_package = "rhscl-${::python::version}-epel-${::operatingsystemmajrelease}-${::architecture}"
-      package { $scl_package:
-        source   => "https://www.softwarecollections.org/en/scls/rhscl/${::python::version}/epel-${::operatingsystemmajrelease}-${::architecture}/download/${scl_package}.noarch.rpm",
-        provider => 'rpm',
-        tag      => 'python-scl-repo',
-      }
+      if $python::local_scl_repo {
+        package { 'scl-utils':
+          ensure => $python::ensure_scl_utils,
+          before => Package['python'],
+        }
+      } else {
+        # rhscl is RedHat SCLs from softwarecollections.org
+        $scl_package = "rhscl-${::python::version}-epel-${::operatingsystemmajrelease}-${::architecture}"
+        package { $scl_package:
+          source   => "https://www.softwarecollections.org/en/scls/rhscl/${::python::version}/epel-${::operatingsystemmajrelease}-${::architecture}/download/${scl_package}.noarch.rpm",
+          provider => 'rpm',
+          tag      => 'python-scl-repo',
+        }
 
-      Package <| title == 'python' |> {
-        tag => 'python-scl-package',
-      }
+        Package <| title == 'python' |> {
+          tag => 'python-scl-package',
+        }
 
-      package { "${python::version}-scldev":
-        ensure => $dev_ensure,
-        tag    => 'python-scl-package',
+        package { "${python::version}-scldev":
+          ensure => $dev_ensure,
+          tag    => 'python-scl-package',
+        }
       }
 
       if $pip_ensure != 'absent' {
@@ -171,9 +178,15 @@ class python::install {
         }
       }
 
-      Package <| tag == 'python-scl-repo' |> ->
-      Package <| tag == 'python-scl-package' |> ->
-      Exec['python-scl-pip-install']
+      if $python::local_scl_repo {
+        package { "${python::version}-python-pip":
+          ensure => $pip_ensure,
+        }
+      } else {
+        Package <| tag == 'python-scl-repo' |> ->
+        Package <| tag == 'python-scl-package' |> ->
+        Exec['python-scl-pip-install']
+      }
     }
 
     default: {
