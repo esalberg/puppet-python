@@ -51,6 +51,8 @@ class python::install {
     default => $python::virtualenv,
   }
 
+  $local_scl_repo = $python::local_scl_repo
+
   package { 'python':
     ensure => $python::ensure,
     name   => $python,
@@ -146,7 +148,7 @@ class python::install {
       }
     }
     rhscl: {
-      if $python::local_scl_repo {
+      if $local_scl_repo {
         package { 'scl-utils':
           ensure => $python::ensure_scl_utils,
           before => Package['python'],
@@ -170,13 +172,13 @@ class python::install {
         }
       }
 
-      if $pip_ensure != 'absent' and !$python::local_scl_repo {
+      if $pip_ensure != 'absent' and !$local_scl_repo {
         exec { 'python-scl-pip-install':
           command => "${python::exec_prefix}easy_install pip",
           path    => ['/usr/bin', '/bin'],
           creates => "/opt/rh/${python::version}/root/usr/bin/pip",
         }
-      } elsif $pip_ensure != 'absent' and $python::local_scl_repo {
+      } elsif $pip_ensure != 'absent' and $local_scl_repo {
         package { "python${python::version}-python-pip":
           ensure => $pip_ensure,
         }
