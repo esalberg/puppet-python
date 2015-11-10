@@ -39,6 +39,12 @@ class python::install {
     default => $python::pip,
   }
 
+  $setuptools_ensure = $python::setuptools ? {
+    true    => 'present',
+    false   => 'absent',
+    default => $python::setuptools,
+  }
+
   $venv_ensure = $python::virtualenv ? {
     true    => 'present',
     false   => 'absent',
@@ -122,12 +128,20 @@ class python::install {
         ensure  => $dev_ensure,
         require => Package['scl-utils'],
       }
-      if $pip_ensure != 'absent' {
+      if $pip_ensure != 'absent' and $setuptools_ensure != 'latest' {
         exec { 'python-scl-pip-install':
           command => "${python::params::exec_prefix}easy_install pip",
           path    => ['/usr/bin', '/bin'],
           creates => "/opt/rh/python${python::version}/root/usr/bin/pip",
           require => Package['scl-utils'],
+        }
+      } elsif $pip_ensure != 'absent' and $setuptools_ensure == 'latest' {
+        exec { 'python-scl-settuptools-install':
+          command     => "${python::params::exec_prefix}easy_install pip; ${python::params::exec_prefix}easy_install -U setuptools",
+          environment => ["LD_LIBRARY_PATH=/opt/rh/python${python::version}/root/usr/lib64", "XDG_DATA_DIRS=/opt/rh/python${python::version}/root/usr/share", "PKG_CONFIG_PATH=/opt/rh/python${python::version}/root/usr/lib64/pkgconfig"],
+          path        => ["/opt/rh/python${python::version}/root/usr/bin", '/usr/bin', '/bin'],
+          creates     => "/opt/rh/python${python::version}/root/usr/bin/pip",
+          require     => Package['scl-utils'],
         }
       }
     }
