@@ -179,7 +179,7 @@ class python::install {
       }
 
       if $python::local_scl_repo {
-        package { "${python::version}-python-pip":
+        package { "python${python::version}-python-pip":
           ensure => $pip_ensure,
         }
       } else {
