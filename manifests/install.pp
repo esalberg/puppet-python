@@ -170,7 +170,7 @@ class python::install {
         }
       }
 
-      if $pip_ensure != 'absent' {
+      if $pip_ensure != 'absent' and !$python::local_scl_repo {
         exec { 'python-scl-pip-install':
           command => "${python::exec_prefix}easy_install pip",
           path    => ['/usr/bin', '/bin'],
