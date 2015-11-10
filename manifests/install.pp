@@ -176,11 +176,16 @@ class python::install {
           path    => ['/usr/bin', '/bin'],
           creates => "/opt/rh/${python::version}/root/usr/bin/pip",
         }
-      }
-
-      if $python::local_scl_repo {
+      } elsif $pip_ensure != 'absent' and $python::local_scl_repo {
         package { "python${python::version}-python-pip":
           ensure => $pip_ensure,
+        }
+        exec { 'python-scl-settuptools-install':
+          command     => "${python::params::exec_prefix}easy_install -U setuptools",
+          environment => ["LD_LIBRARY_PATH=/opt/rh/python${python::version}/root/usr/lib64", "XDG_DATA_DIRS=/opt/rh/python${python::version}/root/usr/share", "PKG_CONFIG_PATH=/opt/rh/python${python::version}/root/usr/lib64/pkgconfig"],
+          path        => ["/opt/rh/python${python::version}/root/usr/bin", '/usr/bin', '/bin'],
+          creates     => "/opt/rh/python${python::version}/root/usr/bin/pip",
+          require     => Package['scl-utils'],
         }
       } else {
         Package <| tag == 'python-scl-repo' |> ->
