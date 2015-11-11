@@ -192,7 +192,7 @@ class python::install {
           command     => "${python::params::exec_prefix}easy_install -U setuptools",
           environment => ["LD_LIBRARY_PATH=/opt/rh/python${python::version}/root/usr/lib64", "XDG_DATA_DIRS=/opt/rh/python${python::version}/root/usr/share", "PKG_CONFIG_PATH=/opt/rh/python${python::version}/root/usr/lib64/pkgconfig"],
           path        => ["/opt/rh/python${python::version}/root/usr/bin", '/usr/bin', '/bin'],
-          subscribe   => Package["python${python::version}-python-pip"],
+          subscribe   => Package["python${python::version}-python"],
           refreshonly => true,
           require     => Package['scl-utils'],
         }
