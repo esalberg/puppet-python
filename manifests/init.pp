@@ -8,12 +8,6 @@
 #  Desired installation state for the Python package. Valid options are absent,
 #  present and latest. Default: present
 #
-# [*ensure_scl_utils*]
-#  Desired installation state for the scl_utils package. Only installed with
-#  the 'scl' provider.  
-#  Valid options are absent, present and latest.
-#  Default: latest
-#
 # [*local_rhscl_repo*]
 # Define whether we are using a local SCL repo or the default internet one.
 # Default: false
@@ -39,6 +33,16 @@
 #  Desired installation state for python-dev. Boolean values are deprecated.
 #  Default: absent
 #  Allowed values: 'absent', 'present', 'latest'
+#
+# [*scldev*]
+#  Desired installation state for python-scldev. Boolean values are deprecated.
+#  Default: absent
+#  Allowed values: 'absent', 'present', 'latest'
+#
+# [*scl_utils*]
+#  Desired installation state for scl_utils (scl or rhscl provider).
+#  Valid options are absent, present and latest.
+#  Default: latest
 #
 # [*setuptools*]
 #  Desired installation state for setuptools. Often installed by default.
@@ -83,11 +87,12 @@
 #
 class python (
   $ensure                    = $python::params::ensure,
-  $ensure_scl_utils          = $python::params::ensure_scl_utils,
+  $scl_utils                 = $python::params::scl_utils,
   $local_scl_repo            = $python::params::local_scl_repo,
   $version                   = $python::params::version,
   $pip                       = $python::params::pip,
   $dev                       = $python::params::dev,
+  $scldev                    = $python::params::scldev,
   $setuptools                = $python::params::setuptools,
   $virtualenv                = $python::params::virtualenv,
   $gunicorn                  = $python::params::gunicorn,
@@ -107,13 +112,12 @@ class python (
   }
 
   $exec_prefix = $provider ? {
-    'scl'   => "scl enable ${version} ",
-    'rhscl' => "scl enable ${version} ",
+    'scl'   => "scl enable ${version} -- ",
+    'rhscl' => "scl enable ${version} -- ",
     default => '',
   }
 
   validate_re($ensure, ['^(absent|present|latest)$'])
-  validate_re($ensure_scl_utils, ['^(absent|present|latest)$'])
   validate_re($version, concat(['system', 'pypy'], $valid_versions))
 
   if $pip == false or $pip == true {
@@ -126,6 +130,18 @@ class python (
     warning('Use of boolean values for the $dev parameter is deprecated')
   } else {
     validate_re($dev, ['^(absent|present|latest)$'])
+  }
+
+  if $scldev == false or $scldev == true {
+    warning('Use of boolean values for the $scldev parameter is deprecated')
+  } else {
+    validate_re($scldev, ['^(absent|present|latest)$'])
+  }
+
+  if $scl_utils == false or $scl_utils == true {
+    warning('Use of boolean values for the $scl_utils parameter is deprecated')
+  } else {
+    validate_re($scl_utils, ['^(absent|present|latest)$'])
   }
 
   if $setuptools == false or $setuptools == true {
